@@ -1,0 +1,14 @@
+name: native_toolchain
+description: A library to find native toolchains on the host machine.
+version: 0.1.0
+repository: https://github.com/dcharkes/native_toolchain
+
+environment:
+  sdk: ">=2.19.3 <4.0.0"
+
+dependencies:
+  pub_semver: ^2.1.3
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.21.0
