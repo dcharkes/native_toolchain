@@ -13,8 +13,8 @@ void printReport(List<SystemToolSearchResult> searchAllToolResults) {
   const green = '\u001b[32m';
   const red = '\u001b[31m';
   const resetColor = '\u001B[39m';
-  final okay = '$green[√]$resetColor';
-  final error = '$red[✖]$resetColor';
+  const okay = '$green[√]$resetColor';
+  const error = '$red[✖]$resetColor';
 
   for (final result in searchAllToolResults) {
     if (!result.isAvailable) {

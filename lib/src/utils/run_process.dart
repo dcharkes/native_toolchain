@@ -16,8 +16,8 @@ Future<RunProcessResult> runProcess({
 }) async {
   final List<String> stdoutBuffer = <String>[];
   final List<String> stderrBuffer = <String>[];
-  final Completer stdoutCompleter = Completer();
-  final Completer stderrCompleter = Completer();
+  final Completer<Object> stdoutCompleter = Completer<Object>();
+  final Completer<Object> stderrCompleter = Completer<Object>();
   final Process process = await Process.start(
     executable,
     arguments,
