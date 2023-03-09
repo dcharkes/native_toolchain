@@ -14,11 +14,11 @@ Future<RunProcessResult> runProcess({
   Map<String, String>? environment,
   bool throwOnFailure = true,
 }) async {
-  final List<String> stdoutBuffer = <String>[];
-  final List<String> stderrBuffer = <String>[];
-  final Completer<Object> stdoutCompleter = Completer<Object>();
-  final Completer<Object> stderrCompleter = Completer<Object>();
-  final Process process = await Process.start(
+  final stdoutBuffer = <String>[];
+  final stderrBuffer = <String>[];
+  final stdoutCompleter = Completer<Object?>();
+  final stderrCompleter = Completer<Object?>();
+  final process = await Process.start(
     executable,
     arguments,
     workingDirectory: workingDirectory?.toFilePath(),
