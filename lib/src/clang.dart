@@ -5,6 +5,16 @@
 import 'dart:io';
 
 import 'system_tools.dart';
+import 'tool.dart';
+import 'tool_resolver.dart';
+
+final Tool clang = Tool(
+    name: 'Clang',
+    defaultResolver: CliVersionResolver(
+      wrappedResolver: ToolResolvers([
+        PathToolResolver(toolName: 'Clang'),
+      ]),
+    ));
 
 final clangSearch = SystemToolSearchSpecification(
   name: 'Clang',

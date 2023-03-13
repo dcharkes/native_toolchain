@@ -4,7 +4,70 @@
 
 import 'dart:io';
 
+import 'package:task_runner/task_runner.dart';
+
 import 'system_tools.dart';
+import 'tool.dart';
+import 'tool_instance.dart';
+import 'tool_resolver.dart';
+
+final androidNdk = Tool(
+  name: 'Android NDK',
+  defaultResolver: AndroidNdkResolver(),
+);
+
+/// A clang that knows how to target Android.
+final androidNdkClang = Tool(
+  name: 'Android NDK Clang',
+  defaultResolver: AndroidNdkResolver(),
+);
+
+class AndroidNdkResolver implements ToolResolver {
+  final installLocationResolver = PathVersionResolver(
+    wrappedResolver: InstallLocationResolver(
+      toolName: 'Android NDK',
+      paths: [
+        if (Platform.isLinux) ...[
+          '\$HOME/Android/Sdk/ndk/*/',
+          '\$HOME/Android/Sdk/ndk-bundle/',
+        ],
+      ],
+    ),
+  );
+
+  @override
+  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner}) async {
+    final ndkInstances =
+        await installLocationResolver.resolve(taskRunner: taskRunner);
+
+    return [
+      for (final ndkInstance in ndkInstances) ...[
+        ndkInstance,
+        ...await tryResolveClang(ndkInstance)
+      ]
+    ];
+  }
+
+  Future<List<ToolInstance>> tryResolveClang(
+      ToolInstance androidNdkInstance) async {
+    final result = <ToolInstance>[];
+    final prebuiltUri =
+        androidNdkInstance.uri.resolve('toolchains/llvm/prebuilt/');
+    final prebuiltDir = Directory.fromUri(prebuiltUri);
+    final hostArchDirs =
+        (await prebuiltDir.list().toList()).whereType<Directory>().toList();
+    for (final hostArchDir in hostArchDirs) {
+      final clangUri = hostArchDir.uri.resolve('bin/clang');
+      if (await File.fromUri(clangUri).exists()) {
+        result.add(await CliVersionResolver.lookupVersion(ToolInstance(
+          tool: androidNdkClang,
+          uri: clangUri,
+        )));
+      }
+    }
+    return result;
+  }
+}
 
 final androidNdkSearch = SystemToolSearchSpecification(
   name: 'Android NDK',

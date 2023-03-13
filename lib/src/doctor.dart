@@ -33,7 +33,7 @@ void printReport(List<SystemToolSearchResult> searchAllToolResults) {
         final version = tool.version;
         final versionString = version != null ? ' $version' : '';
         stdout.writeln(
-            "$okay ${tool.name}$versionString: ${tool.uri.toFilePath()}");
+            "$okay ${tool.tool.name}$versionString: ${tool.uri.toFilePath()}");
       }
     }
   }

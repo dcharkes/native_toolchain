@@ -12,25 +12,26 @@ import 'android_ndk.dart';
 import 'clang.dart';
 import 'cmake.dart';
 import 'msvc.dart';
-import 'native_tool.dart';
 import 'ninja.dart';
+import 'tool.dart';
+import 'tool_instance.dart';
 import 'utils/run_process.dart';
 import 'utils/sem_version.dart';
 
 abstract class SystemTools {
-  static final Future<NativeTool> androidNdk =
+  static final Future<ToolInstance> androidNdk =
       androidNdkSearch.then((e) => e.newestOrThrow);
 
-  static final Future<NativeTool> clang =
+  static final Future<ToolInstance> clang =
       clangSearch.then((e) => e.newestOrThrow);
 
-  static final Future<NativeTool> cmake =
+  static final Future<ToolInstance> cmake =
       cmakeSearch.then((e) => e.newestOrThrow);
 
-  static final Future<NativeTool> msvc =
+  static final Future<ToolInstance> msvc =
       msvcSearch.then((e) => e.newestOrThrow);
 
-  static final Future<NativeTool> ninja =
+  static final Future<ToolInstance> ninja =
       ninjaSearch.then((e) => e.newestOrThrow);
 
   static final Future<List<SystemToolSearchResult>> searchAllTools =
@@ -94,7 +95,8 @@ class SystemToolSearchSpecification {
     return SystemToolSearchResult(
       name: name,
       tools: [
-        if (uri != null) NativeTool(name: name, uri: uri, version: version)
+        if (uri != null)
+          ToolInstance(tool: Tool(name: name), uri: uri, version: version)
       ],
       searchedOnPath: searchOnPath,
       searchedInUris: searchedInUris,
@@ -132,7 +134,7 @@ class SystemToolSearchSpecification {
       // The exit code for executable not being on the `PATH`.
       return null;
     }
-    throw NativeToolError(
+    throw ToolError(
         '`$whichOrWhere $executableName` returned unexpected exit code: '
         '${process.exitCode}.');
   }
@@ -155,7 +157,7 @@ class SystemToolSearchSpecification {
       throwOnFailure: expectedExitCode == 0,
     );
     if (process.exitCode != expectedExitCode) {
-      throw NativeToolError(
+      throw ToolError(
           '`$executablePath $argument` returned unexpected exit code: '
           '${process.exitCode}.');
     }
@@ -167,7 +169,7 @@ class SystemToolSearchResult {
   final String name;
 
   /// Tools found.
-  final List<NativeTool> tools;
+  final List<ToolInstance> tools;
 
   /// Searched for executable on the environment `PATH`.
   final bool searchedOnPath;
@@ -195,12 +197,12 @@ class SystemToolSearchResult {
 
   bool get isAvailable => tools.isNotEmpty;
 
-  NativeTool? get newest {
+  ToolInstance? get newest {
     if (tools.isEmpty) return null;
     return tools.last;
   }
 
-  NativeTool get newestOrThrow {
+  ToolInstance get newestOrThrow {
     final newest = this.newest;
     if (newest == null) {
       String message = 'Could not find $name.';
@@ -213,18 +215,17 @@ class SystemToolSearchResult {
       if (extraInfo != null) {
         message += '\n$extraInfo';
       }
-      throw NativeToolError(message);
+      throw ToolError(message);
     }
     return newest;
   }
-
 }
 
 /// The operation could not be performed due to a configuration error on the
 /// host system.
-class NativeToolError extends Error {
+class ToolError extends Error {
   final String message;
-  NativeToolError(this.message);
+  ToolError(this.message);
   @override
   String toString() => "System not configured correctly: $message";
 }

@@ -4,9 +4,11 @@
 
 import 'package:pub_semver/pub_semver.dart';
 
-class NativeTool implements Comparable<NativeTool> {
+import 'tool.dart';
+
+class ToolInstance implements Comparable<ToolInstance> {
   /// The name of the tool.
-  final String name;
+  final Tool tool;
 
   /// The path of the native tool on the system.
   final Uri uri;
@@ -16,14 +18,20 @@ class NativeTool implements Comparable<NativeTool> {
   /// Can be null if version is hard to determine.
   final Version? version;
 
-  NativeTool({
-    required this.name,
+  ToolInstance({
+    required this.tool,
     required this.uri,
     this.version,
   });
 
+  ToolInstance copyWith({Uri? uri, Version? version}) => ToolInstance(
+        tool: tool,
+        uri: uri ?? this.uri,
+        version: version ?? this.version,
+      );
+
   @override
-  String toString() => 'NativeTool($name, $version, $uri)';
+  String toString() => 'ToolInstance(${tool.name}, $version, $uri)';
 
   /// The path of this native tool.
   ///
@@ -34,8 +42,8 @@ class NativeTool implements Comparable<NativeTool> {
       uri.toFilePath().replaceAll(r'\', r'/').replaceAll(' ', '\\ ');
 
   @override
-  int compareTo(NativeTool other) {
-    final nameCompare = name.compareTo(other.name);
+  int compareTo(ToolInstance other) {
+    final nameCompare = tool.name.compareTo(other.tool.name);
     if (nameCompare != 0) {
       return nameCompare;
     }
@@ -56,11 +64,11 @@ class NativeTool implements Comparable<NativeTool> {
 
   @override
   bool operator ==(Object other) =>
-      other is NativeTool &&
-      name == other.name &&
+      other is ToolInstance &&
+      tool == other.tool &&
       uri == other.uri &&
       version == other.version;
 
   @override
-  int get hashCode => name.hashCode ^ uri.hashCode ^ version.hashCode;
+  int get hashCode => tool.hashCode ^ uri.hashCode ^ version.hashCode;
 }

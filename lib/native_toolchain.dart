@@ -5,4 +5,10 @@
 /// A library to find native toolchains on the host machine.
 library native_toolchain;
 
+export 'src/android_ndk.dart' show androidNdk, androidNdkClang;
+export 'src/clang.dart' show clang;
 export 'src/system_tools.dart';
+export 'src/tool.dart';
+export 'src/tool_instance.dart';
+export 'src/tool_requirement.dart';
+export 'src/tool_resolver.dart';
