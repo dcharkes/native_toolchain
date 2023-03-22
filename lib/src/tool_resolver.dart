@@ -8,7 +8,6 @@ import 'dart:io';
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
 import 'package:pub_semver/pub_semver.dart';
-import 'package:task_runner/task_runner.dart';
 
 import '../native_toolchain.dart';
 import 'utils/run_process.dart';
@@ -16,7 +15,7 @@ import 'utils/sem_version.dart';
 
 abstract class ToolResolver {
   /// Resolves tools on the host system.
-  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner});
+  Future<List<ToolInstance>> resolve();
 }
 
 /// Tries to resolve a tool on the `PATH`.
@@ -29,7 +28,7 @@ class PathToolResolver extends ToolResolver {
   PathToolResolver({required this.toolName});
 
   @override
-  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner}) async {
+  Future<List<ToolInstance>> resolve() async {
     final uri = await runWhich();
 
     return [
@@ -73,8 +72,8 @@ class CliVersionResolver implements ToolResolver {
   CliVersionResolver({required this.wrappedResolver});
 
   @override
-  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner}) async {
-    final toolInstances = await wrappedResolver.resolve(taskRunner: taskRunner);
+  Future<List<ToolInstance>> resolve() async {
+    final toolInstances = await wrappedResolver.resolve();
 
     return [
       for (final toolInstance in toolInstances)
@@ -117,8 +116,8 @@ class PathVersionResolver implements ToolResolver {
   PathVersionResolver({required this.wrappedResolver});
 
   @override
-  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner}) async {
-    final toolInstances = await wrappedResolver.resolve(taskRunner: taskRunner);
+  Future<List<ToolInstance>> resolve() async {
+    final toolInstances = await wrappedResolver.resolve();
 
     return [
       for (final toolInstance in toolInstances) lookupVersion(toolInstance)
@@ -147,10 +146,8 @@ class ToolResolvers implements ToolResolver {
   ToolResolvers(this.resolvers);
 
   @override
-  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner}) async => [
-        for (final resolver in resolvers)
-          ...await resolver.resolve(taskRunner: taskRunner)
-      ];
+  Future<List<ToolInstance>> resolve() async =>
+      [for (final resolver in resolvers) ...await resolver.resolve()];
 }
 
 class InstallLocationResolver implements ToolResolver {
@@ -165,7 +162,7 @@ class InstallLocationResolver implements ToolResolver {
   static const home = '\$HOME';
 
   @override
-  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner}) async =>
+  Future<List<ToolInstance>> resolve() async =>
       [for (final path in paths) ...await tryResolvePath(path)]
           .map((uri) => ToolInstance(tool: Tool(name: toolName), uri: uri))
           .toList();

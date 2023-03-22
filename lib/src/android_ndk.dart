@@ -4,8 +4,6 @@
 
 import 'dart:io';
 
-import 'package:task_runner/task_runner.dart';
-
 import 'system_tools.dart';
 import 'tool.dart';
 import 'tool_instance.dart';
@@ -36,9 +34,8 @@ class AndroidNdkResolver implements ToolResolver {
   );
 
   @override
-  Future<List<ToolInstance>> resolve({TaskRunner? taskRunner}) async {
-    final ndkInstances =
-        await installLocationResolver.resolve(taskRunner: taskRunner);
+  Future<List<ToolInstance>> resolve() async {
+    final ndkInstances = await installLocationResolver.resolve();
 
     return [
       for (final ndkInstance in ndkInstances) ...[

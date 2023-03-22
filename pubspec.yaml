@@ -11,10 +11,6 @@ environment:
 dependencies:
   glob: ^2.1.1
   pub_semver: ^2.1.3
-  task_runner:
-    git:
-      url: https://github.com/dcharkes/task_runner.git
-      ref: 23a378bf4fac090fe9c46a07daf32945c598ef4a
 
 dev_dependencies:
   lints: ^2.0.0
